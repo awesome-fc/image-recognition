@@ -1,3 +1,5 @@
+# coding=utf-8
+
 """
 应用场景：新图片存储到OSS，自动对图片进行归类存储。
 方案分析：
@@ -6,7 +8,7 @@
     step3：解析识别的结果，归类存储到OSS不同的bucket中
 前置：
     step1: 开通日志服务，并授权函数服务
-    step2: 开通oss，并创建3个bucket， one bucket for watching，two bucket for 'plant, animal' image
+    step2: 开通oss，并创建2个bucket， one bucket for watching，one bucket for 'plant, animal' image
     step3: 开通图像识别服务
 """
 
@@ -37,11 +39,8 @@ def handler(event, context):
     # watched bucket
     bucket = oss2.Bucket(auth, endpoint, evt['events'][0]['oss']['bucket']['name'])
 
-    # one bucket for plant
-    bucket_plant = oss2.Bucket(auth, endpoint, '<your plant bucket>')
-
-    # one bucket for animal
-    bucket_animal = oss2.Bucket(auth, endpoint, '<your animal bucket>')
+    # one bucket for catalog
+    bucket_catalog = oss2.Bucket(auth, endpoint, '<your catalog bucket>')
 
     obj_key = evt['events'][0]['oss']['object']['key']
     logger.info('obj key:' + obj_key)
@@ -59,13 +58,13 @@ def handler(event, context):
         for item in result['tags']:
             logger.info('start to foreach, value=' + item['value'])
             # 植物
-            if item['value'] == u"\u690d\u7269":
+            if item['value'] == '植物':
                 logger.info('put plant bucket')
-                bucket_plant.put_object(obj_key, data)
+                bucket_catalog.put_object('plant/' + obj_key, data)
             # 动物
-            elif item['value'] == u"\u52a8\u7269":
+            elif item['value'] == '动物':
                 logger.info('put animal bucket')
-                bucket_animal.put_object(obj_key, data)
+                bucket_catalog.put_object('animal/' + obj_key, data)
 
     except IOError, e:
         logging.error('image recognition happens error, msg=' + e.strerror)

@@ -1,12 +1,28 @@
-# image-recognition
+Image recognition template for aliyun FunctionCompute
+=======
+this function service can classified pictures depend on the result of image recognition.
 
-场景：图像自动分类，用户通过oss上传图片，触发函数计算服务进行图像识别，并且按照识别的结果进行分类存储 |
-方案分析： 
-     step1：通过OSS的Put或者Post事件的触发函数计算服务 
-     step2：函数服务里通过调用阿里云的图像识别服务，实时分析出图片内容 
-     step3：解析识别的结果，归类存储到OSS不同的bucket中 
-前置准备： 
-     step1: 开通日志服务，并授权函数服务 
-     step2: 开通oss，并创建3个bucket， one bucket for watching，two buckets for 'plant, animal' image 
-     step3: 开通图像识别服务
-    
+> This project depend on [image recognition](https://help.aliyun.com/knowledge_detail/53540.html) service，you need open this service firstly.
+
+### Steps:
+* create one log project and log store :https://help.aliyun.com/document_detail/54604.html
+* create two buckets:https://promotion.aliyun.com/ntms/act/ossdoclist.html, one for watching, one for storing the different kind of pictures.
+* create one function: watching the source bucket, when one picture was post, this function will be triggered. setup function compute service :https://help.aliyun.com/document_detail/51733.html
+
+
+### scenarios:
+* put/post one picture into the source bucket
+* trigger function to classify this picture
+* store into bucket with different folder.
+
+### How to set up function:
+* create local folder: code , and download image-recognition-demo.py into into this folder.
+* use fcli client.
+```
+    >> fcli shell
+    >> mks demo
+    >> cd demo
+    >> mkf image_recognition -h image_recognition.handler -d code -t python2.7
+```
+* create one trigger : https://help.aliyun.com/document_detail/53097.html
+
